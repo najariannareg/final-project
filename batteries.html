@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<canvas id="canvas" width="1260" height="570"></canvas>
+<script>
+    context = document.getElementById("canvas").getContext("2d");
+
+    var image = new Image();
+    image.src = "images/hero_new.png";
+
+    function animate() {
+        requestAnimationFrame(animate);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 50, 80, 500, 500);
+        context.fillStyle = "black";
+        context.font = "bold " + 40 + "px Comic Sans MS";
+        context.fillText("-The speaker needs batteries.", 500, 100);
+        context.fillText("I better find some.", 600, 150);
+    }
+
+
+
+
+    setTimeout(setter, 4000);
+
+    function setter() {
+        window.location = "BeginningLevel2.html"
+    }
+
+    animate();
+
+</script>
+</html>

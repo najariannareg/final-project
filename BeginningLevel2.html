@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<canvas id="canvas" width = "1260" height = "570"></canvas>
+<style>
+    body {
+        background: url(images/square.jpg) no-repeat center center fixed;
+        overflow: hidden;
+        background-size: cover;
+
+    }
+</style>
+<body>
+
+</body>
+<script>
+    var ctx = document.getElementById("canvas").getContext("2d");
+    var jumpingState = false;
+    var acceleration = 0.3;
+    var speed = 0;
+
+    var heroImg = new Image();
+    heroImg.src = "images/hero_final.png";
+
+    var finishImg = new Image();
+    finishImg.src = "images/battery.jpg";
+
+    var villainImg = new Image();
+    villainImg.src = "images/police.png";
+
+
+    function Hero(x, y, width, height, image, dx, dy) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.image = image;
+        this.dx = dx;
+        this.dy = dy;
+        this.draw = function () {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        };
+        this.update = function () {
+            this.x += this.dx;
+        };
+    }
+
+    var finish = {
+        x: 1000,
+        y: 490,
+        width: 100,
+        height: 80,
+        image: finishImg,
+        draw: function () {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        }
+    };
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    var values = [-5, -4, -3, 3, 4, 5];
+
+    function createVillains(number) {
+        var arr = [];
+        var width = 100;
+        var height = 70;
+        for(var i = 0; i < number; i++) {
+            arr[arr.length] = {
+                width: width,
+                height: height,
+                x: getRandomInt(500, canvas.width - width - 300),
+                y: canvas.height - height,
+                img: villainImg,
+                dx: values[getRandomInt(0, 5)],
+                draw: function () {
+                    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+                },
+                update: function() {
+                    this.x += this.dx;
+                    if(this.x + this.width >= canvas.width || this.x <= 0) {
+                        this.dx *= - 1;
+                    }
+                }
+            }
+        }
+        return arr;
+    }
+
+    var array = createVillains(4);
+
+    var hero = new Hero(0, 450, 100, 120, heroImg, 0, 0);
+
+    function intersection(obj1, obj2) {
+        if(obj1.x+20 < obj2.x + obj2.width && obj1.x + obj1.width > obj2.x + 40 && obj1.y + 20 < obj2.y + obj2.height && obj1.height + obj1.y > obj2.y) {
+            return true;
+        }
+    }
+
+    document.addEventListener("keyup", function (event) {
+        event.preventDefault();
+        hero.dx = 0;
+    }, false);
+
+    function draw() {
+        finish.draw();
+        hero.draw();
+        for(var i = 0; i < array.length; i++) {
+            array[i].draw();
+        }
+    }
+
+
+
+    function goUp() {
+        if(speed >= 0) {
+            requestAnimationFrame(goUp);
+            hero.y -= hero.dy - acceleration;
+            speed = hero.dy - acceleration;
+            acceleration += 0.06;
+        } else {
+            acceleration = 0.3;
+            speed = 0;
+            goDown();
+        }
+    }
+
+    function goDown() {
+        var frame = requestAnimationFrame(goDown);
+        if(hero.y < canvas.height - hero.height) {
+            acceleration = 0.3;
+            hero.y += hero.dy - acceleration;
+            acceleration += acceleration + 0.06;
+        } else {
+            acceleration = 0.3;
+            cancelAnimationFrame(frame);
+            jumpingState = false;
+        }
+
+    }
+
+    //var map = [false, false, false];
+
+    document.addEventListener("keydown", function (event) {
+        event.preventDefault();
+        if(event.keyCode === 39) {
+            hero.dx = 5;
+        } else if(event.keyCode === 37) {
+            hero.dx = -5;
+        } else if(event.keyCode === 38) {
+            if(jumpingState === false) {
+                jumpingState = true;
+                hero.dy = 5;
+                goUp();
+            }
+        }
+    }, false);
+
+
+
+    function animate() {
+
+        var frame = requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        draw();
+        if(hero.x < 0) {
+            hero.x = 0;
+        }
+        hero.update();
+        for(var i = 0; i < array.length; i++) {
+            if(intersection(array[i], hero)) {
+                cancelAnimationFrame(frame);
+                window.location = "BeginningLevel2.html"
+            }
+            array[i].update();
+        }
+        if(intersection(hero, finish)) {
+            window.location = "video2.html";
+        }
+
+    }
+
+    animate();
+</script>
+</html>

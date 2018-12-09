@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu2</title>
+</head>
+<style>
+    body {
+        background: url(images/vs.jpg) no-repeat center center fixed;
+        overflow: hidden;
+        background-size: cover;
+
+    }
+</style>
+<body>
+
+</body>
+<canvas id = "canvas" width = "1260" height = "570"></canvas>
+
+<script>
+    const ctx = document.getElementById("canvas").getContext("2d");
+
+    window.onload = function () {
+        goodGuy.draw();
+        badGuy.draw();
+    };
+
+    var mouse = {
+        x: undefined,
+        y: undefined
+    };
+
+    var checker = -1;
+    var goodGuyChecker = -1;
+    var badGuyChecker = -1;
+    var marker;
+
+    const locked = new Audio();
+    locked.src = "sounds/locked.mp3";
+
+    const light = new Audio();
+    light.src = "sounds/light side.mp3";
+
+    const dark = new Audio();
+    dark.src = "sounds/dark side.mp3";
+
+    const government = new Image();
+    government.src = "images/government.jpg";
+
+
+
+    const hero = new Image();
+    hero.src = "images/revolutionist.jpg";
+
+    function Picture(x, y, width, height, image) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.image = image;
+        this.draw = function() {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        };
+    }
+
+    function Button(x, y, width, height, text, color) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.text = text;
+        this.color = color;
+        this.choose = function () {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = "white";
+            ctx.font = "bold 40px comic Sans MS";
+            ctx.fillText(this.text, 580, 557);
+        }
+    }
+
+    var button = new Button(570, 520, 150, 50, "Choose", "black");
+
+    var goodGuy = new Picture(240, 170, 300, 300, hero);
+    var badGuy = new Picture(750, 170, 300, 300, government);
+
+
+    ctx.fillStyle = "red";
+    ctx.font = "bold 100px Garamond";
+    ctx.fillText("Choose Your Destiny!",185, 110);
+
+    function drawPictures() {
+        goodGuy.draw();
+        badGuy.draw();
+
+    }
+
+    function intersection(object) {
+        if(object.x < mouse.x && object.x + object.width > mouse.x
+            && object.y < mouse.y && object.y + object.height > mouse.y) {
+            return true;
+
+        }
+    }
+
+    document.addEventListener("mousemove", function (event) {
+        mouse.x = event.x;
+        mouse.y = event.y;
+        if (intersection(goodGuy)) {
+            goodGuyChecker = 1;
+            dark.pause();
+            dark.currentTime = 0;
+            light.currentTime = 0;
+            light.play();
+            if(goodGuyChecker === 1) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 30px Comic Sans MS";
+                ctx.fillText("Make a revolution!", 260, 555);
+                if(goodGuy.width <= 330 && goodGuy.height <= 330) {
+                    goodGuy.x = 200;
+                    goodGuy.y = 150;
+                    goodGuy.width *= 1.1;
+                    goodGuy.height *= 1.1;
+                    goodGuy.draw();
+
+                }
+            }
+        } else if(intersection(badGuy)) {
+            badGuyChecker = 1;
+            light.pause();
+            light.currentTime = 0;
+            dark.currentTime = 0;
+            dark.play();
+            if(badGuyChecker === 1) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 25px comic Sans MS";
+                ctx.fillText("Defeat the separatists!", 756, 555);
+                if(badGuy.width <= 330 && badGuy.height <= 330) {
+                    badGuy.x = 710;
+                    badGuy.y = 150;
+                    badGuy.width *= 1.1;
+                    badGuy.height *= 1.1;
+                    badGuy.draw();
+                }
+            }
+        } else {
+            dark.pause();
+            dark.currentTime = 0;
+            light.pause();
+            light.currentTime = 0;
+            ctx.clearRect(230, 525, 330, 40);
+            ctx.clearRect(730, 525, 350, 40);
+            ctx.clearRect(goodGuy.x, goodGuy.y, goodGuy.width, goodGuy.height);
+            ctx.clearRect(badGuy.x, badGuy.y, badGuy.width, badGuy.height);
+            goodGuyChecker = -1;
+            badGuyChecker = -1;
+            goodGuy.x = 240;
+            goodGuy.y = 170;
+            goodGuy.width = 300;
+            goodGuy.height = 300;
+            badGuy.x = 750;
+            badGuy.y = 170;
+            badGuy.width = 300;
+            badGuy.height = 300;
+
+            goodGuy.draw();
+            badGuy.draw();
+        }
+    });
+
+    document.addEventListener("mousemove", function () {
+        if(intersection(button)) {
+            button.color = "red";
+        } else {
+            button.color = "black";
+        }
+    });
+
+    document.addEventListener("click", function () {
+            if(intersection(goodGuy)) {
+                marker = "goodGuy";
+                buttonDrawer();
+                checker *= -1;
+            } else if(intersection(badGuy)) {
+                locked.currentTime = 0;
+                locked.play();
+                marker = "badGuy";
+
+            } else if(intersection(button)) {
+                if (checker === 1 && marker === "goodGuy") {
+                    window.location = "project.html";
+                }
+            }
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        //ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //drawPictures();
+    }
+
+    function buttonDrawer() {
+        requestAnimationFrame(buttonDrawer);
+        button.choose();
+    }
+
+    animate();
+
+
+
+</script>
+</html>

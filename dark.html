@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Final Project</title>
+	</head>
+	<body>
+		<canvas id = "canvas"></canvas>
+		<script>
+
+			const canvas = document.getElementById('canvas');
+
+			canvas.width = 1260;
+			canvas.height = 570;
+
+			const context = canvas.getContext('2d');
+			context.strokeRect(0, 0, canvas.width, canvas.height);
+
+			const charImage = new Image();
+			charImage.src = "images/SuperNikol.png";
+
+			const bubbleImage = new Image();
+			bubbleImage.src = 'images/bubble.png';
+
+			
+			const createCharacter = function(){
+				return {
+					x: 60,
+					y: 150,
+					w: 350,
+					h: 400,
+					img: charImage,
+					draw: function(){
+						context.drawImage(this.img, this.x, this.y, this.w, this.h);
+					},
+					update: function(){
+					}
+				}
+			};
+
+			const createBubble = function(){
+				return{
+					x: 280,
+					y: 80,
+					w: 300,
+					h: 200,
+					img: bubbleImage,
+					draw: function(){
+						context.drawImage(this.img, this.x, this.y, this.w, this.h);
+					},
+					update: function(){
+					}
+				}
+			};
+				
+			const createButton = function(){
+				return{
+					x: 1000,
+					y: 450,
+					w: 200,
+					h: 70,
+					color: 'red',
+					bool: false,
+					select: false,
+					draw: function(){
+						context.fillStyle = this.color;
+						context.fillRect(this.x, this.y, this.w, this.h);
+					},
+					update: function(){
+						if(this.bool){
+							this.color = 'green';
+						}else{
+							this.color = 'red';
+						}
+					}
+				}
+			};
+
+			const createText = function(){
+				return{
+					x: 1050,
+					y: 500,
+					next: "Next",
+					color: 'white',
+					draw: function(){
+						context.fillStyle = this.color;
+						context.font = 'italic 40pt Calibri';
+						context.fillText(this.next, this.x, this.y);
+					}
+				}
+			}
+
+			const gameData = {
+				character: createCharacter(),
+				bubble: createBubble(),
+				button: createButton(),
+				text: createText()
+			}
+			
+			const draw = function(){
+				gameData.character.draw();
+				gameData.bubble.draw();
+				gameData.button.draw();
+				gameData.text.draw();
+			};
+			
+			const update = function(){
+				gameData.button.update();
+			};
+
+
+			canvas.onmousemove = function(e) {
+				if((e.clientX > gameData.button.x)
+				&& (e.clientX < gameData.button.x + gameData.button.w)
+				&& (e.clientY > gameData.button.y) 
+				&& (e.clientY < gameData.button.y + gameData.button.h)){
+					gameData.button.bool = true;
+	            }else{
+	            	gameData.button.bool = false;
+	            }
+			};
+
+			canvas.onmousedown = function(e) {
+				if((e.clientX > gameData.button.x)
+				&& (e.clientX < gameData.button.x + gameData.button.w)
+				&& (e.clientY > gameData.button.y) 
+				&& (e.clientY < gameData.button.y + gameData.button.h)){
+      				gameData.button.select = true;
+      			window.location='semialien.html';
+      			} 
+			}
+
+			const loop = function(){
+				context.fillStyle = 'black';
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				draw();
+				update();
+				requestAnimationFrame(loop);
+			};
+
+			loop();
+
+		</script>
+	</body>
+</html>

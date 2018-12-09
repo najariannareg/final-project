@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniGame2</title>
+</head>
+<style>
+    body {
+        background: url(images/background.jpg) no-repeat center center fixed;
+        overflow: hidden;
+        background-size: cover;
+
+    }
+</style>
+
+<iframe width = "0" height="0" src = "sounds/ost.mp3" frameborder="0" allowfullscreen></iframe>
+<body>
+
+</body>
+
+<canvas id = "canvas" width = "1260 " height = "570"></canvas>
+<script>
+
+
+    const ctx = document.getElementById("canvas").getContext("2d");
+
+   /* var ost = new Audio();
+    ost.src = "ost.mp3";
+    ost.currentTime = 0;
+    ost.play();*/
+
+    var mouse = {
+        x: undefined,
+        y: undefined
+    };
+
+    const popSound = new Audio();
+    popSound.src = "sounds/pop_sound.mp3";
+
+    function Button(x, y, width, height, buttonColor, text, textX, textY, textWidth, textHeight, textSize, textColor) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.buttonColor = buttonColor;
+        this.text = text;
+        this.textX = textX;
+        this.textY = textY;
+        this.textWidth = textWidth;
+        this.textHeight = textHeight;
+        this.textColor = textColor;
+        this.textSize = textSize;
+        this.draw = function() {
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = this.buttonColor;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = this.textColor;
+            ctx.font = "bold " + this.textSize + "px Comic Sans MS";
+            ctx.fillText(this.text, this.textX, this.textY);
+        }
+    }
+
+    var start = new Button(canvas.width / 2 - 150, canvas.height / 2 - 145, 300, 70, "red", "Start", 540, 195, 150, 35, 65, "white");
+    var settings = new Button(canvas.width / 2 - 150, canvas.height / 2 - 75, 300, 70, "red", "Settings", canvas.width / 2 - 120, canvas.height / 2 - 23, 150, 35, 60, "white");
+    var credits = new Button(canvas.width / 2 - 150, canvas.height / 2 - 5, 300, 70, "red", "Credits", 517, 337, 150, 35, 65, "white");
+    var exit = new Button(canvas.width / 2 - 150, canvas.height / 2 + 65, 300, 70, "red", "Exit", 564, 408, 150, 35, 65, "white");
+
+    var buttonArray = [start, settings, credits, exit];
+    var rectMusicArray = [
+        {x: 128,
+         y: 210,
+         width: 24,
+         height: 30},
+        {x: 152,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 176,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 200,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 224,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 248,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 272,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 296,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 320,
+            y: 210,
+            width: 24,
+            height: 30},
+        {x: 348,
+            y: 210,
+            width: 24,
+            height: 30}];
+    var rectSoundArray = [{x: 128,
+        y: 210,
+        width: 24,
+        height: 30},
+        {x: 152,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 176,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 200,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 224,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 248,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 272,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 296,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 320,
+            y: 270,
+            width: 24,
+            height: 30},
+        {x: 348,
+            y: 270,
+            width: 24,
+            height: 30}
+    ];
+
+    function colorChanger () {
+        for (var i = 0; i < buttonArray.length; i++) {
+            intersectionToColor(buttonArray[i], mouse);
+        }
+    }
+
+
+    function intersectionToColor(object, mouse) {
+        if (object.x - 5 < mouse.x && object.x + object.width + 10 > mouse.x && object.y < mouse.y && object.height + object.y > mouse.y) {
+            object.buttonColor = "black";
+        } else {
+            object.buttonColor = "red";
+        }
+    }
+
+    function intersection(object, mouse) {
+        if (object.x - 5 < mouse.x && object.x + object.width > mouse.x && object.y < mouse.y && object.height + object.y > mouse.y) {
+            return true;
+        }
+    }
+
+    function intersectionToObject(object, mouse) {
+        if (object.x - 5 < mouse.x && object.x + object.width > mouse.x && object.y < mouse.y && object.height + object.y > mouse.y) {
+            return object.text;
+        }
+    }
+
+    function draw() {
+        start.draw();
+        settings.draw();
+        credits.draw();
+        exit.draw();
+    }
+
+    document.addEventListener("click", function () {
+        popSound.currentTime = 0;
+        popSound.endTime = 0.1;
+        for (var i = 0; i < buttonArray.length; i++) {
+            if(intersection(buttonArray[i], mouse)) {
+                popSound.play();
+                if (intersectionToObject(buttonArray[i], mouse) === "Settings") {
+                    settingsClick();
+                } else if(intersectionToObject(buttonArray[i], mouse) === "Start") {
+                    window.location = "Menu2.html"
+                }
+            }
+        }
+    });
+
+    /*document.addEventListener("click", function () {
+        for(var i = 0; i < rectMusicArray.length; i++) {
+            if(intersection(rectMusicArray[i], mouse)) {
+                displayVolume(i, "music");
+                break;
+            }
+        }
+        for(var x = 0; x < rectSoundArray.length; x++) {
+            if(intersection(rectSoundArray[x], mouse)) {
+                displayVolume(x, "sound");
+                break;
+            }
+        }
+    });*/
+
+
+
+    document.addEventListener("mousemove", function (event) {
+       mouse.x = event.x;
+       mouse.y = event.y;
+    });
+
+    function colorer() {
+        for(var y = 0; y < rectMusicArray.length; y++) {
+            if(intersection(rectMusicArray[y], mouse)) {
+                displayVolume(y, "music");
+                break;
+            }
+        }
+        for(var x = 0; x < rectSoundArray.length; x++) {
+            if(intersection(rectSoundArray[x], mouse)) {
+                displayVolume(x, "sound");
+                break;
+            }
+        }
+    }
+
+
+    function drawLine(startX, startY, endX, endY) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = "white";
+        ctx.stroke();
+    }
+
+    function displayVolume(i, marker) {
+        if(marker === "music") {
+            for(var x = 128; x < 128 + i * 24; x += 24) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(x, 210, 24, 30);
+            }
+        } else if(marker === "sound") {
+            for(var y = 128; y < 128 + i * 24; y += 24) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(y, 270, 24, 30);
+            }
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        ctx.clearRect(canvas.width / 2 - 150, 0, canvas.width - (canvas.width / 2 - 150), canvas.height);
+        //ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        draw();
+        colorChanger();
+    }
+
+    function settingsClick() {
+        requestAnimationFrame(settingsClick);
+        ctx.strokeStyle = "white";
+        ctx.font = "20px Lucida Console";
+        ctx.strokeStyle = "white";
+        ctx.fillText("Music", 115, 200);
+        ctx.fillText("Sound", 115, 263);
+        ctx.strokeRect(100, canvas.height / 2 - 110, 300, 137);
+        drawLine(settings.x, settings.y + 23, 400, canvas.height / 2 - 83);
+        drawLine(settings.x, settings.y + 46, 400, canvas.height / 2);
+        colorer();
+        for (var i = 128; i < 348; i += 24) {
+            ctx.strokeRect(i, 210, 24, 30);
+            ctx.strokeRect(i, 270, 24, 30);
+        }
+    }
+
+    animate();
+</script>
+</html>

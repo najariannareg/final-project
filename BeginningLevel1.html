@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Beginning</title>
+</head>
+<canvas id = "canvas" width = "1260" height = "570"></canvas>
+<style>
+    body {
+        background: url(images/square.jpg) no-repeat center center fixed;
+        overflow: hidden;
+        background-size: cover;
+
+    }
+</style>
+<body>
+
+</body>
+<script>
+    var ctx = document.getElementById("canvas").getContext("2d");
+
+    var teleportCounter = 3;
+
+    var heroImg = new Image();
+    heroImg.src = "images/hero_final.png";
+
+    var villainImg = new Image();
+    villainImg.src = "images/villain.png";
+
+    var finishImg = new Image();
+    finishImg.src = "images/loudspeaker.png";
+
+    var portalImg = new Image();
+    portalImg.src = "images/portal.png";
+
+    function Hero(x, y, width, height, image, dx, dy) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.image = image;
+        this.dx = dx;
+        this.dy = dy;
+        this.draw = function () {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        };
+        this.update = function () {
+            this.x += this.dx;
+            if(this.x < 0) {
+                this.x = 0;
+            }
+        };
+    }
+    
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+
+    function createVillains(number) {
+        var arr = [];
+        for(var i = 0; i < number; i++) {
+            var width = 50;
+            var height = 50;
+            arr[arr.length] = {
+                width: width,
+                height: height,
+                x: getRandomInt(100, canvas.width - width - 300),
+                y: getRandomInt(-10000, 100),
+                img: villainImg,
+                dy: 2,
+                draw: function () {
+                    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+                },
+                update: function() {
+                    this.y += this.dy;
+                }
+            }
+        }
+        return arr;
+    }
+
+
+
+    var finish = {
+        x: 1000,
+        y: 490,
+        width: 100,
+        height: 80,
+        image: finishImg,
+        draw: function () {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        }
+    };
+
+
+    var hero = new Hero(0, 450, 100, 120, heroImg, 0, 5);
+    var array = createVillains(200);
+    var portalArray = [
+        {
+            x: 1100,
+            y: 10,
+            width: 50,
+            height: 70,
+            draw: function(){
+                ctx.drawImage(portalImg, this.x, this.y, this.width, this.height);
+            }
+        },
+        {
+            x: 1150,
+            y: 10,
+            width: 50,
+            height: 70,
+            draw: function(){
+                ctx.drawImage(portalImg, this.x, this.y, this.width, this.height);
+            }
+        },
+        {
+            x: 1200,
+            y: 10,
+            width: 50,
+            height: 70,
+            draw: function(){
+                ctx.drawImage(portalImg, this.x, this.y, this.width, this.height);
+            }
+        }
+    ];
+
+
+    function draw() {
+        hero.draw();
+        finish.draw();
+        for(var i = 0; i < array.length; i++) {
+            array[i].draw();
+        }
+        for(var x = 0; x < portalArray.length; x++) {
+            portalArray[x].draw();
+        }
+    }
+
+    function update() {
+        for(var i = 0; i < array.length; i++) {
+            array[i].update();
+            if(intersection1(hero, array[i]) === true) {
+                return false;
+            }
+        }
+        hero.update();
+    }
+
+    function intersection(obj1, obj2) {
+        if(obj1.x < obj2.x + obj2.width && obj1.x + obj1.width - 20 > obj2.x && obj1.y < obj2.y + obj2.height && obj1.height + obj1.y > obj2.y) {
+            return true;
+        }
+        return false;
+    }
+
+    function intersection1(obj1, obj2) {
+        if(obj1.x < obj2.x + obj2.width && obj1.x + obj1.width > obj2.x && obj1.y + 10 < obj2.y + obj2.height && obj1.height + obj1.y > obj2.y) {
+            return true;
+        }
+        return false;
+    }
+
+    document.addEventListener("keydown", function (event) {
+        event.preventDefault();
+        if(event.keyCode === 39) {
+            hero.dx = 3;
+        } else if(event.keyCode === 37) {
+            hero.dx = -3;
+        } else if(event.keyCode === 32) {
+            if(teleportCounter > 0) {
+                portalArray.splice(teleportCounter - 1, 1);
+                hero.x += 300;
+                teleportCounter--;
+            }
+        }
+    });
+
+    document.addEventListener("keyup", function (event) {
+        event.preventDefault();
+        hero.dx = 0;
+    });
+
+    function animate() {
+        var frame = requestAnimationFrame(animate);
+        if(intersection(hero, finish) === false && update() !== false) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            draw();
+            update();
+        } else if (update() === false) {
+            cancelAnimationFrame(frame);
+            window.location = "BeginningLevel1.html"
+            //alert("game over")
+        } else if(intersection(hero, finish) === true) {
+            window.location = "batteries.html";
+        }
+    }
+
+    animate();
+
+</script>
+
+</html>

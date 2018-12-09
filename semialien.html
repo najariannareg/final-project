@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+<canvas id = 'canvas'></canvas>
+
+</body>
+
+
+<script>
+
+
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    canvas.width = 1260;
+    canvas.height = 567;
+
+
+    const rand = function(num) {
+        return Math.floor(Math.random() * num) + 1;
+    };
+
+    const backgroundImage = new Image();
+    backgroundImage.src = 'images/planets.png';
+
+    const backgroundImage1 = new Image();
+    backgroundImage1.src = 'images/space.png';
+
+
+    const itemImage0 = new Image();
+    itemImage0.src = 'images/fire.png';
+
+    const itemImage1 = new Image();
+    itemImage1.src = 'images/wheel.png';
+
+    const itemImage2 = new Image();
+    itemImage2.src = 'images/compas.png';
+
+    const itemImage3 = new Image();
+    itemImage3.src = 'images/lamp.png';
+
+    const itemImage4 = new Image();
+    itemImage4.src = 'images/internet.png';
+
+
+    const ufoImage = new Image();
+    ufoImage.src = 'images/ufo.png';
+
+
+    const a = 63;
+    const n = 5;
+
+
+    const createItems = function(n, a){
+        let array = [];
+        let imageArr = [itemImage0, itemImage1, itemImage2, itemImage3, itemImage4];
+        for(let i = 0; i < n; i++){
+            array[array.length] = {
+                x: (rand(canvas.width / a - 1)) * a,
+                y: (rand(canvas.height / a - 3)) * a,
+                w: a,
+                h: a,
+                xdir: 0,
+                ydir: 0,
+                speed: 3,
+                moveMe: false,
+                image: imageArr[i % imageArr.length],
+                draw: function(){
+                    context.drawImage(this.image, this.x, this.y, this.w, this.h);
+                }
+
+            }
+        }
+        return array;
+    };
+
+    const createTable = function(a){
+        const column = canvas.width / a;
+        const row = canvas.height / a - 3;
+
+        let array = [];
+        const colorArr = ['black'];
+
+        for(let j = 0; j <= row; j++){
+            for(let i = 0; i <= column; i++){
+                array[array.length] = {
+                    x: i * a,
+                    y: j * a,
+                    w: a,
+                    h: a,
+                    color: colorArr[rand(colorArr.length)-1],
+                    draw: function(){
+                        context.fillStyle = this.color;
+                        context.fillRect(this.x, this.y, this.w, this.h);
+                    }
+                }
+            }
+        }
+        return array;
+    };
+
+    const createUFO = function(w, h){
+        return{
+            x: canvas.width / 2 - w / 2,
+            y: -h,
+            w: w,
+            h: h,
+            W: 0,
+            H: 0,
+            xdir: 0,
+            ydir: 1,
+            speed: 5,
+            co: 0.95,
+            bool: false,
+            draw: function(){
+                context.drawImage(ufoImage, this.x, this.y, this.w, this.h);
+            },
+            updateComingDown: function(){
+                this.x += this.xdir * this.speed;
+                this.y += this.ydir * this.speed;
+                if(this.y >= canvas.height / 3 - h / 2){
+                    this.ydir = 0;
+                    this.bool = true;
+                }
+            }
+
+        }
+    };
+
+    const gameData = {
+        table: createTable(a),
+        items: createItems(n, a)
+    };
+
+
+    let itemIndex = [];
+    let rectIndex = -1;
+
+    const draw = function(){
+        for(let k = 0; k < gameData.items.length; k++){
+            gameData.items[k].draw();
+        }
+
+        for(let k = 0; k < gameData.table.length; k++){
+            if(k !== rectIndex) {
+                gameData.table[k].draw();
+            }
+        }
+    };
+
+
+    const update = function(){
+        let l = 0;
+        let Step = 0;
+        //sorts the items
+        for(let k = 0; k < gameData.items.length; k++){
+            if(gameData.items[k].moveMe === true){
+                gameData.items[k].x = a * (7 + k);
+                gameData.items[k].y = canvas.height - 1.5 * a;
+                l += 1;
+            }
+        }
+        if(l < n){
+            for(let k = 0; k < gameData.table.length; k++){
+                if(k !== rectIndex) {
+                    gameData.table[k].draw();
+                }
+            }
+        }
+
+        //
+        //black rectangles are removed
+        if(l >= n){
+            window.location = "video.html";
+
+        }
+
+    };
+
+
+
+    const animation = function(){
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height - 2*a);
+        context.drawImage(backgroundImage1, 0, canvas.height - 2*a + 5, canvas.width, 2*a - 5);
+        draw();
+        update();
+        requestAnimationFrame(animation);
+    };
+
+
+    canvas.onmousemove = function(e) {
+        for(let i = 0; i < gameData.table.length; i++){
+            if((e.clientX > gameData.table[i].x)
+                && (e.clientX < gameData.table[i].x + gameData.table[i].w)
+                && (e.clientY > gameData.table[i].y)
+                && (e.clientY < gameData.table[i].y + gameData.table[i].h)){
+                rectIndex = i;
+            }
+        }
+    };
+
+    canvas.onmousedown = function(e) {
+        for(let i = 0; i < gameData.items.length; i++){
+            if( (e.clientX > gameData.items[i].x)
+                && (e.clientX < gameData.items[i].x + gameData.items[i].w)
+                && (e.clientY > gameData.items[i].y)
+                && (e.clientY < gameData.items[i].y + gameData.items[i].h)){
+                gameData.items[i].moveMe = true;
+            }
+        }
+    };
+
+
+    animation();
+
+
+
+
+
+
+
+
+
+</script>
+
+
+</html>
